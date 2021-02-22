@@ -1,0 +1,6 @@
+[submodule "dssm"]
+	path = dssm
+	url = git@github.com:naruya/DSSM.git
+[submodule "diayn"]
+	path = diayn
+	url = git@github.com:naruya/DIAYN.git
