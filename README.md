@@ -52,5 +52,8 @@ $ pip install -e .
 
 ### 4. Test (mujoco, mujoco-py, gym, rlkit)
 ```
+# train
 $ python examples/diayn.py HalfCheetah-v2
+# eval
+$ python scripts/run_policy_diayn.py HalfCheetah-v2 data/path/to/params.pkl
 ```
