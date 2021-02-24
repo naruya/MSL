@@ -122,7 +122,7 @@ if __name__ == "__main__":
                         help='skill dimension')
     parser.add_argument('--H', type=int, default=300,
                         help='Max length of rollout')
-    parser.add_argument('--D', type=int, default=3,
+    parser.add_argument('--D', type=int, default=5,
                         help='Depth (The number of update)')
     args = parser.parse_args()
 
