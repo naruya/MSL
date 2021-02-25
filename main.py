@@ -25,7 +25,7 @@ def collect(env, diayn, depth, args):
 
     data = []
     for skill in tqdm(range(args.skill_dim)):
-        for trial in range(100):
+        for trial in range(1000):
             # print("skill-{} rollout-{}".format(skill, trial))
             if depth == 0:
                 path = random_rollout(
@@ -58,15 +58,18 @@ def collect(env, diayn, depth, args):
 
 
 def update_sim(depth, args):
-    ssm, ssm_log = train_ssm("--H {} --depth {} --epochs 100".format(args.H, depth))
+    ssm, ssm_log = train_ssm(
+        "--depth {} --epochs 1000 --T 100".format(depth))
     sim = SimNormalizedBoxEnv(gym.make(str(args.env)), ssm, depth, args)
     return sim, ssm_log
 
 
-def update_policy(diayn, sim, diayn_path, args):
+def update_diayn(diayn, sim, diayn_path, args):
     experiment(diayn, sim, sim, args)
+    diayn_log = diayn.log_dir
+
     file = os.path.join(diayn_path, "params.pkl")
-    diayn, diayn_log = get_algorithm(env, env, args.skill_dim, file=file)
+    diayn = get_algorithm(env, env, args.skill_dim, file=file)
     return diayn, diayn_log
 
 
@@ -110,7 +113,7 @@ class SimNormalizedBoxEnv(NormalizedBoxEnv):
         o = torch.from_numpy(np.array([o]))
         o = self.ssm.reset(o)
         return o_original
-        
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -118,25 +121,24 @@ if __name__ == "__main__":
                         help='environment')
     parser.add_argument("--data_dir", type=str,
                         default="./data/")
-    parser.add_argument('--skill_dim', type=int, default=100,
+    parser.add_argument('--skill_dim', type=int, default=10,
                         help='skill dimension')
-    parser.add_argument('--H', type=int, default=300,
+    parser.add_argument('--H', type=int, default=1000,
                         help='Max length of rollout')
-    parser.add_argument('--D', type=int, default=5,
+    parser.add_argument('--D', type=int, default=1,
                         help='Depth (The number of update)')
     args = parser.parse_args()
 
-    env = NormalizedBoxEnv(gym.make(str(args.env)))
-    diayn, diayn_log = get_algorithm(env, env, args.skill_dim)
+    log_path = datetime.now().strftime("%b%d_%H-%M-%S") + ".log.txt"
 
-    loghist = []
+    env = NormalizedBoxEnv(gym.make(str(args.env)))
+    diayn = get_algorithm(env, env, args.skill_dim)
+
     for depth in range(args.D):
         collect(env, diayn, depth, args)
-        sim, ssm_log = update_sim(depth, args)
-        diayn, diayn_log = update_policy(diayn, sim, diayn_log, args)
-        loghist.append([ssm_log, diayn_log])
+        sim, sim_log = update_sim(depth, args)
+        diayn, diayn_log = update_diayn(diayn, sim, diayn_log, args)
+        with open(log_path, mode='a') as f:
+            f.write(str([sim_log, diayn_log]))
         gt.reset()
-    print(loghist)
     
-    with open(datetime.now().strftime("%b%d_%H-%M-%S") + "_loghist.txt", mode='wb') as f:
-        pickle.dump(loghist, f)
