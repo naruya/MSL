@@ -59,7 +59,7 @@ def collect(env, diayn, depth, args):
 
 def update_sim(depth, args):
     ssm, ssm_log = train_ssm(
-        "--depth {} --epochs 1000 --T 10 --B 256".format(depth))
+        "--data ./data/loop{} --epochs 2000 --T 10 --B 256".format(depth))
     sim = SimNormalizedBoxEnv(gym.make(str(args.env)), ssm, depth, args)
     return sim, ssm_log
 
@@ -135,7 +135,7 @@ if __name__ == "__main__":
     diayn = get_algorithm(env, env, args.skill_dim)
 
     for depth in range(args.D):
-        collect(env, diayn, depth, args)
+        # collect(env, diayn, depth, args)
         sim, sim_log = update_sim(depth, args)
         diayn, diayn_log = update_diayn(diayn, sim, diayn_log, args)
         with open(log_path, mode='a') as f:
