@@ -59,7 +59,7 @@ def collect(env, diayn, depth, args):
 
 def update_sim(depth, args):
     ssm, ssm_log = train_ssm(
-        "--depth {} --epochs 1000 --T 100".format(depth))
+        "--depth {} --epochs 1000 --T 10 --B 256".format(depth))
     sim = SimNormalizedBoxEnv(gym.make(str(args.env)), ssm, depth, args)
     return sim, ssm_log
 
