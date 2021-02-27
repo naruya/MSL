@@ -149,8 +149,13 @@ class SimNormalizedBoxEnv(NormalizedBoxEnv):
         self.env.step = self.step
         self.envreset = self.env.reset
         self.env.reset = self.reset
+        self.t = 0
 
     def step(self, action):
+        self.t += 1
+        if self.t % 100 == 0:
+            print("sim", end="")  # now using simulator!
+
         lb = self._wrapped_env.action_space.low
         ub = self._wrapped_env.action_space.high
         scaled_action = lb + (action + 1.) * 0.5 * (ub - lb)
