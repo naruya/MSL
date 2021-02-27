@@ -21,12 +21,12 @@ def collect(diayn, depth, args):
     if depth in [0, 1]:  # use old data (hard coding)
         return None
 
+    env = NormalizedBoxEnv(gym.make(str(args.env)))
+
     if depth == 0:
         random_policy = RandomPolicy(env.action_space)
     else:
         diayn_policy = diayn.eval_data_collector.get_snapshot()['policy']
-
-    env = NormalizedBoxEnv(gym.make(str(args.env)))
 
     data = []
     for skill in tqdm(range(args.skill_dim)):
