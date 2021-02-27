@@ -1,2 +1,4 @@
 tqdm
 logzero
+matplotlib
+pandas
