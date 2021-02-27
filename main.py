@@ -32,7 +32,7 @@ def collect(diayn, depth, args):
     for skill in tqdm(range(args.skill_dim)):
         for trial in range(100):
             # print("skill-{} rollout-{}".format(skill, trial))
-            if depth == 0:6
+            if depth == 0:
                 path = random_rollout(
                     env,
                     random_policy,
