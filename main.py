@@ -21,12 +21,12 @@ def collect(diayn, depth, args):
     if depth in [0, 1]:  # use old data (hard coding)
         return None
 
+    env = NormalizedBoxEnv(gym.make(str(args.env)))
+
     if depth == 0:
         random_policy = RandomPolicy(env.action_space)
     else:
         diayn_policy = diayn.eval_data_collector.get_snapshot()['policy']
-
-    env = NormalizedBoxEnv(gym.make(str(args.env)))
 
     data = []
     for skill in tqdm(range(args.skill_dim)):
@@ -80,16 +80,16 @@ def collect(diayn, depth, args):
 
 
 def update_sim(depth, args):
-    if depth == 0:
-        ssm, ssm_log = train_ssm(
-            "--data ./data/loop{} --epochs {} --T 10 --B 256 \
-             --timestamp Feb26_08-06-04 --load_epoch 2000".format(depth, args.ssm_epochs))
-    elif depth == 1:
-        ssm, ssm_log = train_ssm(
-            "--data ./data/loop{} --epochs {} --T 10 --B 256 \
-             --timestamp Feb27_09-34-00 --load_epoch 2000".format(depth, args.ssm_epochs))
-    else:
-        ssm, ssm_log = train_ssm(
+    # if depth == 0:
+    #     ssm, ssm_log = train_ssm(
+    #         "--data ./data/loop{} --epochs {} --T 10 --B 256 \
+    #          --timestamp Feb26_08-06-04 --load_epoch 2000".format(depth, args.ssm_epochs))
+    # elif depth == 1:
+    #     ssm, ssm_log = train_ssm(
+    #         "--data ./data/loop{} --epochs {} --T 10 --B 256 \
+    #          --timestamp Feb27_09-34-00 --load_epoch 2000".format(depth, args.ssm_epochs))
+    # else:
+    ssm, ssm_log = train_ssm(
             "--data ./data/loop{} --epochs {} --T 10 --B 256".format(depth, args.ssm_epochs))
 
     sim = SimNormalizedBoxEnv(gym.make(str(args.env)), ssm, depth, args)
@@ -102,29 +102,29 @@ def update_diayn(sim, depth, args, diayn_log=None):
     else:
         file = None
 
-    if depth == 0:  # hard coding!!
-        diayn_log = '/root/workspace/MSL/diayn/data/DIAYN-100-HalfCheetah-v2/DIAYN_100_HalfCheetah-v2_2021_02_27_07_40_50_0000--s-0'
-        file = os.path.join(diayn_log, "params.pkl")
-        diayn = get_algorithm(sim,
-                      sim,
-                      args.skill_dim,
-                      epochs=args.diayn_epochs,
-                      length=args.H_diayn,
-                      file=file)
-        diayn.log_dir = diayn_log
-        return diayn, diayn_log
+    # if depth == 0:  # hard coding!!
+    #     diayn_log = '/root/workspace/MSL/diayn/data/DIAYN-100-HalfCheetah-v2/DIAYN_100_HalfCheetah-v2_2021_02_27_07_40_50_0000--s-0'
+    #     file = os.path.join(diayn_log, "params.pkl")
+    #     diayn = get_algorithm(sim,
+    #                   sim,
+    #                   args.skill_dim,
+    #                   epochs=args.diayn_epochs,
+    #                   length=args.H_diayn,
+    #                   file=file)
+    #     diayn.log_dir = diayn_log
+    #     return diayn, diayn_log
 
-    elif depth == 1:  # hard coding!!
-        diayn_log = '/root/workspace/MSL/diayn/data/DIAYN-100-HalfCheetah-v2/DIAYN_100_HalfCheetah-v2_2021_02_27_11_01_03_0000--s-0'
-        file = os.path.join(diayn_log, "params.pkl")
-        diayn = get_algorithm(sim,
-                      sim,
-                      args.skill_dim,
-                      epochs=args.diayn_epochs,
-                      length=args.H_diayn,
-                      file=file)
-        diayn.log_dir = diayn_log
-        return diayn, diayn_log
+    # elif depth == 1:  # hard coding!!
+    #     diayn_log = '/root/workspace/MSL/diayn/data/DIAYN-100-HalfCheetah-v2/DIAYN_100_HalfCheetah-v2_2021_02_27_11_01_03_0000--s-0'
+    #     file = os.path.join(diayn_log, "params.pkl")
+    #     diayn = get_algorithm(sim,
+    #                   sim,
+    #                   args.skill_dim,
+    #                   epochs=args.diayn_epochs,
+    #                   length=args.H_diayn,
+    #                   file=file)
+    #     diayn.log_dir = diayn_log
+    #     return diayn, diayn_log
 
     # USE SIM !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     diayn = get_algorithm(sim,
